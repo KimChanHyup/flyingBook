@@ -13,7 +13,7 @@ public class Book implements Parcelable {
 	private String author;
 	private int rentCount;
 	private String category;
-	private Date updateDay;
+	private String updateDay;
 	private Bitmap image;
 	private String image_name;
 
@@ -22,7 +22,7 @@ public class Book implements Parcelable {
 	}
 
 	public Book(String name, String description, String author, int rentCount,
-			String category, Date updateDay, String image_name) {
+			String category, String updateDay, String image_name) {
 		this.name = name;
 		this.description = description;
 		this.author = author;
@@ -73,11 +73,11 @@ public class Book implements Parcelable {
 		this.category = category;
 	}
 
-	public Date getUpdateDay() {
+	public String getUpdateDay() {
 		return updateDay;
 	}
 
-	public void setUpdateDay(Date updateDay) {
+	public void setUpdateDay(String updateDay) {
 		this.updateDay = updateDay;
 	}
 
@@ -112,7 +112,7 @@ public class Book implements Parcelable {
 		dest.writeString(author);
 		dest.writeInt(rentCount);
 		dest.writeString(category);
-		dest.writeLong(updateDay.getTime());
+		dest.writeString(updateDay);
 		dest.writeString(image_name);
 		// dest.writeParcelable(image, flags);
 
@@ -129,7 +129,7 @@ public class Book implements Parcelable {
 			String author = src.readString();
 			int rentCount = src.readInt();
 			String category = src.readString();
-			Date updateDay = new Date(src.readLong());
+			String updateDay =src.readString();
 			//Bitmap image = src.readParcelable(loader);
 			String image_name = src.readString();
 

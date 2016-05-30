@@ -26,7 +26,7 @@
         android:numStars="5"
         android:paddingBottom="5dp"
         android:rating="0"
-        android:stepSize="5" />
+        android:stepSize="1" />
 
     <TextView
         android:id="@+id/date"

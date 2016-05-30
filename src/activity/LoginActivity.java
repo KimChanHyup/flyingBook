@@ -310,11 +310,7 @@ public class LoginActivity extends Activity {
 					.toString()));
 			book.setCategory(obj2.get("Book_category").toString());
 
-			String strUpdateDay = obj2.get("Book_updateDay").toString();
-			SimpleDateFormat transFormat = new SimpleDateFormat("yyyy-MM-dd");
-			Date dateUpdateDay = transFormat.parse(strUpdateDay);
-
-			book.setUpdateDay(dateUpdateDay);
+			book.setUpdateDay(obj2.get("Book_updateDay").toString());
 			book.setImage_name(obj2.get("Book_image").toString());
 			book.setImage(null);
 			/*

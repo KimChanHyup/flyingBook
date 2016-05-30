@@ -1,16 +1,9 @@
 package activity;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,7 +14,6 @@ import android.widget.Button;
 import com.example.flyingbook.R;
 
 import etc.Book;
-import etc.Util;
 
 public class MainActivity extends Activity {
 
@@ -50,11 +42,8 @@ public class MainActivity extends Activity {
 		Intent intent = getIntent();
 		U_id = intent.getExtras().getString("U_id");
 		bookList = intent.getExtras().getParcelableArrayList("bookList");
-		rentBookList = intent.getExtras().getParcelableArrayList("rentBookList");
-		reservBookList = intent.getExtras().getParcelableArrayList("reservBookList");
+
 		
-		System.out.println("check size rent : "+rentBookList.size());
-		System.out.println("check size reserv : "+reservBookList.size());
 		btnShowList.setOnClickListener(new OnClickListener() {
 
 			@Override

@@ -50,7 +50,7 @@ public class ShowListActivity extends FragmentActivity implements
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_sholist);
+		setContentView(R.layout.activity_showlist);
 
 		/*
 		 * if (mTypeface == null) mTypeface =
@@ -59,8 +59,8 @@ public class ShowListActivity extends FragmentActivity implements
 		// ViewGroup root = (ViewGroup) findViewById(android.R.id.content);
 		// setGlobalFont(root);
 
-		Intent intent = getIntent();
-		final String U_id = intent.getExtras().getString("U_id");
+		//Intent intent = getIntent();
+		//final String U_id = intent.getExtras().getString("U_id");
 		
 
 		display();
@@ -165,7 +165,6 @@ public class ShowListActivity extends FragmentActivity implements
 		@Override
 		public Fragment getItem(int index) {
 			// TODO Auto-generated method stub
-			String categoryList = null;
 			if (index == 0) {
 				return ShowListPageFragment.newInstance("" + index,
 						comicBookList, U_id);

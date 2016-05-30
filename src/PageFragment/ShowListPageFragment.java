@@ -63,7 +63,7 @@ public class ShowListPageFragment extends Fragment implements OnClickListener {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
+		System.out.println("fragment onCreate »£√‚");
 		this.bookList = getArguments().getParcelableArrayList("bookList");
 		this.U_id = getArguments().getString("U_id");
 		

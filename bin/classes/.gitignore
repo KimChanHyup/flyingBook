@@ -1,5 +1,6 @@
-/PageFragment/
+/com/
+/.gitignore
 /activity/
 /adapter/
-/com/
+/PageFragment/
 /etc/

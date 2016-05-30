@@ -4,7 +4,11 @@ import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.http.HttpResponse;
@@ -22,7 +26,6 @@ import org.xmlpull.v1.XmlPullParserFactory;
 import adapter.MyCommentAdapter;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -45,7 +48,6 @@ import com.example.flyingbook.R;
 import etc.Book;
 import etc.Comment;
 import etc.Util;
-import java.util.Calendar;
 
 public class BookInfoActivity extends Activity {
 
@@ -54,6 +56,9 @@ public class BookInfoActivity extends Activity {
 	HttpClient httpclient;
 	List<NameValuePair> nameValuePairs;
 
+	String U_id;
+	Book receiveBook;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -61,11 +66,10 @@ public class BookInfoActivity extends Activity {
 
 		Bundle bundle = getIntent().getExtras();
 
-		//Intent intent = getIntent();
+		// Intent intent = getIntent();
 
 		final String U_id = bundle.getString("U_id");
-		System.out.println("bookInfo: "+ U_id);
-		final Book receiveBook = bundle.getParcelable("sendBook");
+		receiveBook = bundle.getParcelable("sendBook");
 
 		ImageView image = (ImageView) findViewById(R.id.ImageView);
 		TextView bookName = (TextView) findViewById(R.id.bookName);
@@ -73,12 +77,13 @@ public class BookInfoActivity extends Activity {
 		TextView bookDescription = (TextView) findViewById(R.id.bookDescription);
 		TextView bookUpdate = (TextView) findViewById(R.id.bookupdate);
 		Button btnComment = (Button) findViewById(R.id.btnComment);
+		Button btnRent = (Button) findViewById(R.id.btnRent);
 
+	
 		bookName.setText("책 이름 : " + receiveBook.getName());
 		bookAuthor.setText("저자 : " + receiveBook.getAuthor());
 		bookDescription.setText(receiveBook.getDescription());
-		bookUpdate.setText(receiveBook.getUpdateDay().toString());
-		
+		bookUpdate.setText("업데이트 날짜 : " + receiveBook.getUpdateDay());
 
 		final ArrayList<Comment> midList = new ArrayList<Comment>();
 		ListView list = (ListView) findViewById(R.id.comments);
@@ -132,7 +137,8 @@ public class BookInfoActivity extends Activity {
 			final String response = httpclient.execute(httppost,
 					responseHandler);
 			System.out.println(response);
-			getXmlData("Comment.xml", midList, "comment", "U_id", "grade");
+			getXmlData("Comment.xml", midList, "comment", "U_id", "grade",
+					"date");
 			adapter.notifyDataSetChanged();
 
 		} catch (Exception e) {
@@ -180,12 +186,13 @@ public class BookInfoActivity extends Activity {
 
 					@Override
 					public void onClick(View v) {
+						Calendar calendar = Calendar.getInstance();
 						try {
 							httpclient = new DefaultHttpClient();
 							httppost = new HttpPost(Util.SERVER_ADDRESS
 									+ "inputComment.php");
-							
-							nameValuePairs = new ArrayList<NameValuePair>(4);
+
+							nameValuePairs = new ArrayList<NameValuePair>(5);
 							nameValuePairs.add(new BasicNameValuePair(
 									"book_name", receiveBook.getName()
 											.toString()));
@@ -193,30 +200,37 @@ public class BookInfoActivity extends Activity {
 									"grade_star", "" + ratingBar.getRating()));
 							nameValuePairs.add(new BasicNameValuePair(
 									"comment", editText.getText().toString()));
+							nameValuePairs.add(new BasicNameValuePair(
+									"date",
+									calendar.get(calendar.YEAR)
+											+ "-"
+											+ (calendar.get(calendar.MONTH) + 1)
+											+ "-"
+											+ calendar
+													.get(calendar.DAY_OF_MONTH)));
 							nameValuePairs.add(new BasicNameValuePair("U_id",
 									U_id.toString()));
-							
+
 							httppost.setEntity(new UrlEncodedFormEntity(
-									nameValuePairs,"utf-8"));
-							
+									nameValuePairs, "utf-8"));
+
 							// response = httpclient.execute(httppost);
 							ResponseHandler<String> responseHandler = new BasicResponseHandler();
 							final String response = httpclient.execute(
 									httppost, responseHandler);
-							
-							Calendar calendar = Calendar.getInstance();
 
 							Comment comment = new Comment();
 							comment.setId(U_id.toString());
 							comment.setGradeStar(ratingBar.getRating());
+							System.out.println(ratingBar.getRating());
 							comment.setText(editText.getText().toString());
 							comment.setDate(calendar.get(calendar.YEAR) + "-"
 									+ (calendar.get(calendar.MONTH) + 1) + "-"
 									+ calendar.get(calendar.DAY_OF_MONTH));
-							
+
 							midList.add(0, comment);
 							adapter.notifyDataSetChanged();
-						
+
 							Toast.makeText(getApplicationContext(), "후기작성 완료.",
 									Toast.LENGTH_LONG).show();
 
@@ -228,6 +242,100 @@ public class BookInfoActivity extends Activity {
 				});
 			}
 		});
+		btnRent.setOnClickListener(new Button.OnClickListener() {
+
+			private int responseResult;
+
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+
+				LayoutInflater inflater = LayoutInflater
+						.from(BookInfoActivity.this);
+				AlertDialog.Builder builder = new AlertDialog.Builder(
+						BookInfoActivity.this);
+
+				builder.setTitle(null);
+				View customDialogView = inflater.inflate(
+						R.layout.layout_rent_dialog, null, false);
+
+				try {
+					httpclient = new DefaultHttpClient();
+					httppost = new HttpPost(Util.SERVER_ADDRESS
+							+ "remainBook.php");
+
+					nameValuePairs = new ArrayList<NameValuePair>(1);
+					nameValuePairs.add(new BasicNameValuePair("book_name",
+							receiveBook.getName().toString()));
+
+					httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs,
+							"utf-8"));
+
+					// response = httpclient.execute(httppost);
+					ResponseHandler<String> responseHandler = new BasicResponseHandler();
+					final String response = httpclient.execute(httppost,
+							responseHandler);
+
+					this.responseResult = Integer.parseInt(response);
+
+				} catch (Exception e) {
+					System.out.println("Exception: " + e.toString());
+				}
+
+				final TextView message = (TextView) customDialogView
+						.findViewById(R.id.message);
+				Button btnComplete = (Button) customDialogView // 입력버튼
+						.findViewById(R.id.Rent);
+
+				if (responseResult <= 0) {
+					message.setText("현재 모든 도서가 대여중입니다. 예약하시겠습니까?");
+					btnComplete.setText("예약하기");
+				} else {
+					message.setText("선택하신 도서는 현재 " + responseResult
+							+ "권 보유중입니다. 대여하시겠습니까?");
+					btnComplete.setText("대여하기");
+				}
+				builder.setView(customDialogView);
+
+				final AlertDialog mAlertDialog = builder.create();
+				mAlertDialog.show();
+
+				btnComplete.setOnClickListener(new OnClickListener() {
+
+					@Override
+					public void onClick(View v) {
+						try {
+							httpclient = new DefaultHttpClient();
+							httppost = new HttpPost(Util.SERVER_ADDRESS
+									+ "rent.php");
+
+							nameValuePairs = new ArrayList<NameValuePair>(5);
+							nameValuePairs.add(new BasicNameValuePair(
+									"book_name", receiveBook.getName()
+											.toString()));
+							nameValuePairs.add(new BasicNameValuePair("U_id",
+									U_id.toString()));
+
+							httppost.setEntity(new UrlEncodedFormEntity(
+									nameValuePairs, "utf-8"));
+
+							// response = httpclient.execute(httppost);
+							ResponseHandler<String> responseHandler = new BasicResponseHandler();
+							final String response = httpclient.execute(
+									httppost, responseHandler);
+
+							Toast.makeText(getApplicationContext(),
+									"총알배송 해드리겠습니다.", Toast.LENGTH_LONG).show();
+
+						} catch (Exception e) {
+							System.out.println("Exception: " + e.toString());
+						}
+						mAlertDialog.dismiss();
+					}
+				});
+			}
+		});
+
 	}
 
 	@Override
@@ -250,7 +358,7 @@ public class BookInfoActivity extends Activity {
 	}
 
 	private void getXmlData(String filename, ArrayList<Comment> midList,
-			String str1, String str2, String str3) {
+			String str1, String str2, String str3, String str4) {
 
 		String rss = Util.SERVER_ADDRESS + "xml/";
 
@@ -278,6 +386,9 @@ public class BookInfoActivity extends Activity {
 						comment.setId(xpp.nextText());
 					} else if (xpp.getName().equals(str3)) {
 						comment.setGradeStar(Float.parseFloat(xpp.nextText()));
+					} else if (xpp.getName().equals(str4)) {
+						comment.setDate(xpp.nextText());
+
 						midList.add(comment);
 						// 새로운 객체를 만든다.
 						comment = new Comment();
